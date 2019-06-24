@@ -1,6 +1,7 @@
 // Sorts.cpp	具体的排序算法成员函数定义（相应的函数声明在文件SortShow.h的SortShow类中）
 #include "SortShow.h"
 #include <conio.h>
+#include <stdlib.h>
 
 void SortShow::BubbleSort()
 {
@@ -80,8 +81,54 @@ void SortShow::QuickSort(int *a, int size)
 	Sleep(200);
 	MidiOutMessage(hMidiOut, 0x90, 0x09, 82, 127);		// 通道0x09特指打击乐（69, 82 Shaker 沙锤）
 	for(int key=0; key!='g' && key!='G'; )
-		key = _getch();
-	
+		key = getch();
 	QuickSort(a, left);
 	QuickSort(a+left+1, size-left-1);
+}
+
+void SortShow::MonkeySort(int *a)
+{
+	int h=0, k=0;
+	bool flag=false;
+	while(1){
+		h=rand();
+		k=rand();
+		SWAP(a , h, k);
+		for (int i = 0; i < 16; i++)
+		{
+			if(array[i+1]>array[i])
+				flag = true;
+		}
+		if (flag)
+			break;
+	}
+}
+
+void SortShow::InsertSort(int *a, int size) 
+{
+	for (int i = 1; i < size; i++) {
+		int key = array[i];
+		int j = i - 1;
+		while ((j >= 0) && (key < array[j])) {
+			SWAP(a, j, j + 1);
+			j--;
+		}
+		array[j + 1] = key;
+	}
+}
+
+void SortShow ::ShellSort(int *a, int size)
+{
+		int h = 1;
+		while (h < size / 3) {
+			h = 3 * h + 1;
+		}
+		while (h >= 1) {
+			for (int i = h; i < size; i++) {
+				for (int j = i; j >= h && array[j] < array[j - h]; j -= h) {
+					SWAP(a,j, j - h);
+				}
+			}
+			h = h / 3;
+	}
 }
