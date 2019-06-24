@@ -3,6 +3,7 @@
 #include <conio.h>
 #include <stdlib.h>
 
+
 void SortShow::BubbleSort()
 {
 	int lastExchangeIndex = 0;				// 记录最后一次交换的位置
@@ -86,21 +87,28 @@ void SortShow::QuickSort(int *a, int size)
 	QuickSort(a+left+1, size-left-1);
 }
 
-void SortShow::MonkeySort(int *a)
+void SortShow::MonkeySort(int *a, int size)
 {
-	int h=0, k=0;
-	bool flag=false;
+	int count0 = 0;
+	for (int i = 0; i < size; i++) {
+		if (array[i + 1] > array[i])
+			count0++;
+	}
+	if (count0 == size - 1)	return;
+	int h=0, k=0,count=0;
 	while(1){
-		h=rand();
-		k=rand();
-		SWAP(a , h, k);
-		for (int i = 0; i < 16; i++)
-		{
-			if(array[i+1]>array[i])
-				flag = true;
-		}
-		if (flag)
+		if (count == size-1)
 			break;
+		h=rand()%size;
+		do{
+		k=rand()%size;
+		} while (k == h);
+		SWAP(a, h, k);
+		count = 0;
+		for (int i = 0; i < size; i++) {
+			if (array[i + 1] > array[i]) 
+				count++;
+		}
 	}
 }
 
@@ -132,3 +140,91 @@ void SortShow ::ShellSort(int *a, int size)
 			h = h / 3;
 	}
 }
+
+void SortShow::bitonicSortAnyN(int *array, int length, bool asd)
+{ // asd 升序
+	if (length > 1)
+	{
+		int m = length / 2;
+		bitonicSortAnyN(array, m, !asd); // 前半降序
+		bitonicSortAnyN(array + m, length - m, asd); // 后半升序
+		// 前2个sort之后形成了双调序列，然后传入merge合并成asd规定的序列
+//        bitonicMerge(arr, len, asd); // 注释掉基本双调排序
+		bitonicMergeAnyN(array, length, asd);
+	}
+}
+
+void SortShow::BitonicSort1() //双调递归
+{
+	bool asd = true;
+	bitonicSortAnyN(array, length, asd);
+}
+
+/*void SortShow::bitonicSort(int *array, int length, bool asd) // asd 升序
+{
+	if (length > 1)
+	{
+		int m = length / 2;
+		bitonicSort(array, m, !asd); // 前半降序
+		bitonicSort(array + m, length - m, asd); // 后半升序
+		// 前2个sort之后形成了1个双调序列，然后传入merge合并成asd规定的序列
+		bitonicMerge(array, length, asd); // 合并
+	}
+}
+*/
+
+
+
+int getGreatest2nLessThan(int length) {
+	int k = 1;
+	while (k < length) k = k << 1; // 注意一定要加k=
+	return k >> 1;
+}
+void SortShow::bitonicMergeAnyN(int *array, int length, bool asd) // 合并
+{
+	if (length > 1)
+	{
+		int m = getGreatest2nLessThan(length);
+		for (int i = 0; i < length - m; ++i)
+		{
+			if (array[i] > array[i + m] == asd)
+				SWAP(array, i, i + m); // 根据asd判断是否交换
+		}
+		// for循环结束后又生成了2个双调序列，分别merge直到序列长度为1
+		bitonicMergeAnyN(array, m, asd); // 都是按照asd进行merge
+		bitonicMergeAnyN(array + m, length - m, asd);
+	}
+}
+
+
+
+/* 基本双调排序归并
+void bitonicMerge(int *arr, int len, bool asd) {
+	if (len > 1) {
+		int m = len / 2;
+		for (int i = 0; i < m; ++i) {
+			if (arr[i] > arr[i + m] == asd)
+				swap(arr[i], arr[i + m]); // 根据asd判断是否交换
+		}
+		// for循环结束后又生成了2个双调序列，分别merge直到序列长度为1
+		bitonicMerge(arr, m, asd);
+		bitonicMerge(arr + m, m, asd);
+	}
+}
+*/
+// 任意双调排序归并
+/*void SortShow::bitonicMergeAnyN(int *array, int length, bool asd)
+ {
+	if (length > 1) {
+		int m = getGreatest2nLessThan(length);
+		for (int i = 0; i < length - m; ++i) {
+			if (array[i] > array[i + m] == asd)
+				swap(array[i], array[i + m]); // 根据asd判断是否交换
+		}
+		bitonicMergeAnyN(array, m, asd); // 一般情况下，m > len-m
+		bitonicMergeAnyN(array + m, length - m, asd);
+	}
+}
+*/
+// 双调排序（基本 + 任意）
+

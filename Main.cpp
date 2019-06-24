@@ -23,6 +23,7 @@ int main()
 						"4 ---- 猴子排序(M）",
 						"5 ---- 插入排序（I）",
 						"6 ---- 希尔排序(H)",
+						"7 ---- 双调排序",
 						"0 ---- 退出(ESC)",
 						"请选择: "};
 	int choice, n=sizeof(str)/sizeof(*str);
@@ -64,6 +65,7 @@ int main()
 		case '6':
 		case 'H':
 		case 'h':	ss.ShellSort();		break;
+		case '7':   ss.BitonicSort1(); break;
 		default:
 					ss.ShowText(2, 22, 0, 7, "没有执行任何排序算法");
 		}
