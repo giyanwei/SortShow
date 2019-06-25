@@ -1,6 +1,7 @@
 // SortShow.cpp
 #include "SortShow.h"
 #include <conio.h>
+#include <time.h>
 
 int SortShow::nObjs = 0;								// ¾²Ì¬Êı¾İ³ÉÔ±¶¨Òå¼°³õÊ¼»¯£¨¶ÔÏóµÄ¸öÊı£©
 HMIDIOUT SortShow::hMidiOut=NULL;						// ¾²Ì¬Êı¾İ³ÉÔ±¶¨Òå¼°³õÊ¼»¯£¨MIDIÊä³öÉè±¸¾ä±ú£©
@@ -155,9 +156,9 @@ void SortShow::ShowElements(const int *a, int i, int j, bool pause) const	// Ïà¶
 			break;
 		else
 		{
-			if(kbhit())											// Èç¹ûÃ»ÓĞ»÷¼ü£¬·µ»Ø0£¨¸Ãº¯ÊıÔ­ĞÍÔÚconio.hÖĞ£©
+			if(_kbhit())											// Èç¹ûÃ»ÓĞ»÷¼ü£¬·µ»Ø0£¨¸Ãº¯ÊıÔ­ĞÍÔÚconio.hÖĞ£©
 			{
-				getch();
+				_getch();
 				break;
 			}
 		}
@@ -207,6 +208,12 @@ void SortShow::ShowArray() const
 		ShowElements(array, i, i);
 }
 
+void SortShow::ShowArray(int *a, int size) const
+{
+	for (int i = 0; i < size; i++)
+		ShowElements(a, i, i);
+}
+
 void SortShow::Start()									// ÅÅĞò×¼±¸¿ªÊ¼
 {
 	DWORD result;
@@ -221,7 +228,7 @@ void SortShow::Start()									// ÅÅĞò×¼±¸¿ªÊ¼
 	SetConsoleCursorPosition(hStdOut, coord);
 	SetConsoleTextAttribute(hStdOut, 4<<4 | 14);		// ±³¾°:ºì(4), Ç°¾°:»Æ(14)
 	WriteConsole(hStdOut, str, strlen(str), &result, NULL);
-	getch();
+	_getch();
 	SetConsoleCursorPosition(hStdOut, coord);
 	WriteConsole(hStdOut, "ÅÅĞò½øĞĞÖĞ......      ", 22, &result, NULL);
 	MidiOutMessage(hMidiOut, 0x90, 0x09, 71, 127);		// Í¨µÀ0x09ÌØÖ¸´ò»÷ÀÖ£¨71Îª Short Whistle ¶ÌÉÚ£©

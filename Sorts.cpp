@@ -1,6 +1,7 @@
 // Sorts.cpp	具体的排序算法成员函数定义（相应的函数声明在文件SortShow.h的SortShow类中）
 #include "SortShow.h"
 #include <conio.h>
+#include <vector>
 
 void SortShow::BubbleSort()
 {
@@ -80,127 +81,412 @@ void SortShow::QuickSort(int *a, int size)
 	Sleep(200);
 	MidiOutMessage(hMidiOut, 0x90, 0x09, 82, 127);		// 通道0x09特指打击乐（69, 82 Shaker 沙锤）
 	for(int key=0; key!='g' && key!='G'; )
-		key = getch();
+		key = _getch();
 	
 	QuickSort(a, left);
 	QuickSort(a+left+1, size-left-1);
 }
 
-
-int mpartition(int a[], int l, int r) {
-	int pivot = a[l];
-
-	while (l < r) {
-		while (l < r && pivot <= a[r]) r--;
-		if (l < r) a[l++] = a[r];
-		while (l<r && pivot>a[l]) l++;
-		if (l < r) a[r--] = a[l];
-	}
-	a[l] = pivot;
-	return l;
-}
-
-void quick_sort(int a[], int l, int r) {
-
-	if (l < r) {
-		int q = mpartition(a, l, r);
-		msort(a, l, q - 1);
-		msort(a, q + 1, r);
-	}
-}
-
-
-void SortShow::void heapAdjust(int a[], int i, int nLength) // 堆排序算法
-{
-	int nChild;
-	int nTemp;
-	for (nTemp = a[i]; 2 * i + 1 < nLength; i = nChild)
+void SortShow::RadixSortLSD(int *b, int size)
+ {
+	int a[16];
+	for (int i = 0; i < size; i++)
 	{
-		// 子结点的位置=2*（父结点位置）+ 1
-		nChild = 2 * i + 1;
-		// 得到子结点中较大的结点
-		if (nChild < nLength - 1 && a[nChild + 1] > a[nChild])
-			++nChild;
-		// 如果较大的子结点大于父结点那么把较大的子结点往上移动，替换它的父结点
-		if (nTemp < a[nChild])
-		{
-			a[i] = a[nChild];
-			a[nChild] = nTemp;
+		a[i] = b[i];
+	}
+	int i, bucket[16], maxVal = 0, digitPosition = 1;
+	for (i = 0; i < size; i++) 
+	{
+		if (a[i] > maxVal) 
+		{ 
+			maxVal = a[i]; 
 		}
-		else
-			// 否则退出循环
-			break;
+	}
+	int pass = 1;  // used to show the progress
+	/* maxVal: this variable decide the while-loop count
+	if maxVal is 3 digits, then we loop through 3 times */
+	while (maxVal / digitPosition > 0) {
+		/* reset counter */
+		int digitCount[10] = { 0 };
+		/* count pos-th digits (keys) */
+		for (i = 0; i < size; i++)
+		{
+			digitCount[a[i] / digitPosition % 10]++;
+		}
+		/* accumulated count */
+		for (i = 1; i < 10; i++)
+		{
+			digitCount[i] += digitCount[i - 1];
+		}
+		/* To keep the order, start from back side */
+   		for (i = size - 1; i >= 0; i--)
+		{
+   			bucket[--digitCount[a[i] / digitPosition % 10]] = a[i];
+		}
+		/* rearrange the original array using elements in the bucket */
+		for (i = 0; i < size; i++)
+		{
+			a[i] = bucket[i];
+			array[i] = a[i];
+		}
+		/* at this point, a array is sorted by digitPosition-th digit */
+		if (digitPosition == 1)
+		{
+			ShowText(8, 0, 0, 7, "基于数字的个位进行第一轮排序");
+		}
+		else if (digitPosition == 10)
+		{
+			ShowText(8, 0, 0, 7, "基于数字的十位进行第二轮排序");
+		}
+		ShowArray();
+		/* move up the digit position */
+		digitPosition *= 10;
 	}
 }
 
-// 堆排序算法
-void heap_sort(int a[], int length)
+struct ListNode 
 {
-	int tmp;
-	// 调整序列的前半部分元素，调整完之后第一个元素是序列的最大的元素
-	//length/2-1是第一个非叶节点，此处"/"为整除
-	for (int i = length / 2 - 1; i >= 0; --i)
-		heapAdjust(a, i, length);
-	// 从最后一个元素开始对序列进行调整，不断的缩小调整的范围直到第一个元素
-	for (int i = length - 1; i > 0; --i)
+	explicit ListNode(int i = 0) :mData(i), mNext(NULL) {}
+	ListNode* mNext;
+	int mData;
+};
+
+const int BUCKET_RANGE = 10;
+const int BUCKET_NUM = 3;
+
+ListNode* insert(ListNode* head, int val) 
+{
+	ListNode dummyNode;
+	ListNode* newNode = new ListNode(val);
+	ListNode* pre, * curr;
+	dummyNode.mNext = head;
+	pre = &dummyNode;
+	curr = head;
+	while (NULL != curr && curr->mData <= val)	// 遍历链表寻找节点应该所处的正确位置
 	{
-		// 把第一个元素和当前的最后一个元素交换，
-		// 保证当前的最后一个位置的元素都是在现在的这个序列之中最大的
-	  ///  Swap(&a[0], &a[i]);
-		tmp = a[i];
-		a[i] = a[0];
-		a[0] = tmp;
-		// 不断缩小调整heap的范围，每一次调整完毕保证第一个元素是当前序列的最大值
-		heapAdjust(a, 0, i);
+		pre = curr;
+		curr = curr->mNext;
+	}
+	newNode->mNext = curr;						// 将节点插入其正确位置
+	pre->mNext = newNode;						
+	return dummyNode.mNext;
+}
+
+ListNode* Merge(ListNode* head1, ListNode* head2) 
+{
+	ListNode dummyNode;
+	ListNode* dummy = &dummyNode;
+	while (NULL != head1 && NULL != head2) 
+	{
+		if (head1->mData <= head2->mData) 
+		{
+			dummy->mNext = head1;
+			head1 = head1->mNext;
+		}
+		else 
+		{
+			dummy->mNext = head2;
+			head2 = head2->mNext;
+		}
+		dummy = dummy->mNext;
+	}
+	if (NULL != head1) dummy->mNext = head1;
+	if (NULL != head2) dummy->mNext = head2;
+
+	return dummyNode.mNext;
+}
+
+void SortShow::BucketSort(int a[], int size) 
+{
+	int arr[16];    // 拷贝一份与array一样的数组为arr
+	for (int i = 0; i < 16; i++)
+	{
+		arr[i] = a[i];
+	}
+
+	// 将array中的数字按照index放入桶中的同时将每一个桶里的数字排序
+	vector<ListNode*> buckets(3, (ListNode*)(0));
+	for (int i = 0; i < size; ++i) 
+	{
+		int index = arr[i] / BUCKET_RANGE;
+		ListNode* head = buckets.at(index);
+		buckets.at(index) = insert(head, arr[i]);
+	}
+
+	// 第一次刷新显示
+	ListNode* point = buckets.at(0);
+	int i = 0;
+	int k = i;
+	for (int j = 0; j < BUCKET_NUM; j++)
+	{
+		point = buckets.at(j);
+		if (point == NULL)
+		{
+			break;
+		}
+		ShowText(3, k + 1, 0, 7, "[");
+		while (point->mNext != NULL)
+		{
+			array[i] = point->mData;
+			point = point->mNext;
+			i++;
+			k++;
+		}
+		ShowText(3, k + 1, 0, 7, "[");
+		k++;
+	}
+	ShowText(8, 0, 0, 7, "将数字放入[]桶中");
+	ShowArray();
+
+	// 将所有的桶按顺序合并
+	ListNode* head = buckets.at(0);
+	for (int i = 1; i < BUCKET_NUM; ++i) 
+	{
+		head = Merge(head, buckets.at(i));	// 合并两个桶 
+		//将此次合并后的head中的变化刷新在屏幕上
+		ShowText(8, 0, 0, 7, "将所有的桶按顺序合并");
+		point = head;
+		int j;
+		for (j = 0; point != NULL; j++)
+		{
+			array[j] = point->mData;
+			point = point->mNext;
+		}
+		for (j++; j < 16; j++)
+		{
+			array[j] = 0;
+		}
+		ShowArray();
+	}
+
+	// 从桶中的结果得出排好序的数组
+	for (int i = 0; i < size; ++i) 
+	{
+		array[i] = head->mData;
+		head = head->mNext;
 	}
 }
 
-// 归并排序算法
-void merge(int *arry, int left, int mid, int right)
+void SortShow::MonkeySort(int* a, int size)		// 猴子排序
 {
-    int *temp = new int[right - left];
-    int t = 0;
-    int i = left;
-    int j = mid;
-    while (i < mid || j < right)
-    {
-        if (i>= mid)
-        {
-            temp[t++] = arry[j++];
-        }
-        else if (j>= right)
-        {
-            temp[t++] = arry[i++];
-        }
-        else
-        {
-            if (arry[i] < arry[j])
-            {
-                temp[t++] = arry[i++];
-            }
-            else
-            {
-                temp[t++] = arry[j++];
-            }
-        }
-    }
-    t = 0;
-    for (int i = left; i < right; i++)
-    {
-        arry[i] = temp[t++];
-    }
-    delete[] temp;
+	int count0 = 0;
+	for (int i = 0; i < size; i++) {
+		if (array[i + 1] > array[i])
+			count0++;
+	}
+	if (count0 == size - 1)	return;
+	int h = 0, k = 0, count = 0;
+	while (1) {
+		if (count == size - 1)
+			break;
+		h = rand() % size;
+		do {
+			k = rand() % size;
+		} while (k == h);
+		SWAP(a, h, k);
+		count = 0;
+		for (int i = 0; i < size; i++) {
+			if (array[i + 1] > array[i])
+				count++;
+		}
+	}
 }
 
-void mysort(int *arry, int left, int right)  // 归并排序算法
+void SortShow::InsertSort(int* a, int size)		// 插入排序
 {
-    if (left + 1 < right)
-    {
-        int mid = (left + right) / 2;
-        mysort(arry, left, mid);
-        mysort(arry, mid, right);
-        merge(arry, left, mid, right);
-    }
+	for (int i = 1; i < size; i++) {
+		int key = array[i];
+		int j = i - 1;
+		while ((j >= 0) && (key < array[j])) {
+			SWAP(a, j, j + 1);
+			j--;
+		}
+		array[j + 1] = key;
+	}
+}
+
+void SortShow::ShellSort(int* a, int size)		// 希尔排序
+{
+	int h = 1;
+	while (h < size / 3) {
+		h = 3 * h + 1;
+	}
+	while (h >= 1) {
+		for (int i = h; i < size; i++) {
+			for (int j = i; j >= h && array[j] < array[j - h]; j -= h) {
+				SWAP(a, j, j - h);
+			}
+		}
+		h = h / 3;
+	}
+}
+void SortShow::BitonicSort1() //双调递推
+{
+	bool asd = true;
+	for (int step = 2; step < length; step *= 2)
+	{
+		for (int i = 0; i < length; i += 2 * step)
+		{
+			sortSeq(array + i, step, asd); // 前半升序
+			sortSeq(array + i + step, step, !asd); // 后半降序
+		}
+	}
+	sortSeq(array, length, asd);
+}
+
+void SortShow::sortSeq(int* array, int length, bool asd)
+{
+	int step = length / 2;
+	for (; step > 0; step /= 2)
+	{
+		for (int i = 0; i < length; i += 2 * step)
+		{
+			for (int j = 0; j < step; ++j)
+			{
+				if (asd)
+				{
+					if (array[i + j] > array[i + step + j])
+						SWAP(array, i + j, i + step + j);
+				}
+				else
+				{
+					if (array[i + j] < array[i + step + j])
+						SWAP(array, i + j, i + step + j);
+				}
+			}
+		}
+
+	}
+}
+void SortShow::BitonicSort2() //双调递归
+{
+	bool asd = true;
+	bitonicSort(array, length, asd);
+}
+void SortShow::bitonicSort(int* array, int length, bool asd) // asd 升序
+{
+	if (length > 1)
+	{
+		int m = length / 2;
+		bitonicSort(array, m, !asd); // 前半降序
+		bitonicSort(array + m, length - m, asd); // 后半升序
+		// 前2个sort之后形成了1个双调序列，然后传入merge合并成asd规定的序列
+		bitonicMerge(array, length, asd); // 合并
+	}
+}
+
+void SortShow::bitonicMerge(int* array, int length, bool asd) // 合并
+{
+	if (length > 1)
+	{
+		int m = length / 2;
+		for (int i = 0; i < m; ++i)
+		{
+			if (array[i] > array[i + m] == asd)
+				SWAP(array, i, i + m); // 根据asd判断是否交换
+		}
+		// for循环结束后又生成了2个双调序列，分别merge直到序列长度为1
+		bitonicMerge(array, m, asd); // 都是按照asd进行merge
+		bitonicMerge(array + m, m, asd);
+	}
 }
 
 
+void SortShow::bitonicSortAnyN(int* array, int length, bool asd)
+{ // asd 升序
+	if (length > 1)
+	{
+		int m = length / 2;
+		bitonicSortAnyN(array, m, !asd); // 前半降序
+		bitonicSortAnyN(array + m, length - m, asd); // 后半升序
+		// 前2个sort之后形成了双调序列，然后传入merge合并成asd规定的序列
+//        bitonicMerge(arr, len, asd); // 注释掉基本双调排序
+		bitonicMergeAnyN(array, length, asd);
+	}
+}
+
+void SortShow::BitonicSort3() //双调递归
+{
+	bool asd = true;
+	bitonicSortAnyN(array, length, asd);
+}
+
+
+
+
+int getGreatest2nLessThan(int length) {
+	int k = 1;
+	while (k < length) k = k << 1; // 注意一定要加k=
+	return k >> 1;
+}
+void SortShow::bitonicMergeAnyN(int* array, int length, bool asd) // 合并
+{
+	if (length > 1)
+	{
+		int m = getGreatest2nLessThan(length);
+		for (int i = 0; i < length - m; ++i)
+		{
+			if (array[i] > array[i + m] == asd)
+				SWAP(array, i, i + m); // 根据asd判断是否交换
+		}
+		// for循环结束后又生成了2个双调序列，分别merge直到序列长度为1
+		bitonicMergeAnyN(array, m, asd); // 都是按照asd进行merge
+		bitonicMergeAnyN(array + m, length - m, asd);
+	}
+}
+
+
+void SortShow::gnomesort(int n, int* array)		// 地精排序
+{
+	int i = 0;
+
+	while (i < n)
+	{
+		if (i == 0 || array[i - 1] <= array[i])
+			i++;
+		else
+		{
+			SWAP(array, i, i - 1);
+			i--;
+		}
+	}
+}
+
+
+void SortShow::bidBubbleSort(int* array, int n)		// 双向冒泡排序
+{
+	int left, right, t, l, r, j, i = 0;
+
+	left = 0;
+	right = n - 1;
+
+
+	while (left < right)
+	{
+
+		l = left + 1;
+		r = right - 1;
+
+
+		for (j = left; j < right; j++)
+		{
+			if (array[j] > array[j + 1])
+			{
+				SWAP(array, j, j + 1);
+				r = j;
+			}
+		}
+		right = r;
+
+
+		for (j = right; j > left; j--)
+		{
+			if (array[j] < array[j - 1])
+			{
+				SWAP(array, j, j - 1);
+				l = j;
+			}
+		}
+		left = l;
+	}
+}
