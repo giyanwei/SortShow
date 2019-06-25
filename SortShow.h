@@ -8,7 +8,7 @@
 #include <iostream>
 using namespace std;
 
-#define N 16
+#define N 30
 
 class SortShow
 {
@@ -24,7 +24,6 @@ public:
 	void Finish() const;						// 排序结束
 
 	void ShowArray() const;						// 输出数组的所有元素
-	void ShowArray(int* a, int size) const;         // 输出指定数组的所有元素
 	void ShowElements(const int *a, int i, int j, bool pause=false) const;	// 同时输出两个元素
 	void SWAP(int *a, int i, int j);			// 交换元素i与元素j
 	static DWORD MidiOutMessage(HMIDIOUT hMidiOut, int iStatus, int iChannel, int iNote, int iVolume);
@@ -39,58 +38,10 @@ public:
 		ShowText(8, 0, 0, 7, "快速排序。带*号的条闪烁时表示此次划分完成，听到沙锤声时请按g或G继续");
 		QuickSort(array, length);
 	}
-	// 基数排序
-	void RadixSortLSD(int *b, int size);
-	void RadixSortLSD()
-	{
-		RadixSortLSD(array, length);
-	}
-	// 桶排序
-	void BucketSort(int arr[], int size);
-	void BucketSort()
-	{
-		BucketSort(array, length);
-	}
-	// 猴子排序
-	void MonkeySort(int* a, int size);
-	void MonkeySort()
-	{
-		MonkeySort(array, length);
-	}
-	// 插入排序
-	void InsertSort(int* a, int size);
-	void InsertSort()
-	{
-		InsertSort(array, length);
-	}
-	//希尔（Shell）排序
-	void ShellSort(int* a, int size);
-	void ShellSort()
-	{
-		ShellSort(array, length);
-	}
-	// 双调排序
-	void bitonicSortAnyN(int* a, int length, bool asd);
-	void  bitonicMergeAnyN(int* a, int length, bool asd);
-	void BitonicSort3();
-	void BitonicSort1();
-	void sortSeq(int* array, int length, bool asd);
-	void BitonicSort2();
-	void bitonicSort(int* array, int length, bool asd);
-	void bitonicMerge(int* arr, int len, bool asd);
-	// 地精排序
-	void gnomesort(int n, int* array);
-	void gnomesort()
-	{
-		gnomesort(length, array);
-	}
-	// 双向冒泡排序
-	void bidBubbleSort(int* array, int n);
-	void bidBubbleSort()
-	{
-		bidBubbleSort(array, length);
-	}
-	// 请添加其他排序算法
+	void heapAdjust(int a[], int i, int nLength);//堆排序
+	void heap_sort(int* i, int j);                      //堆排序
+	void merge(int *arry, int left, int mid, int right) //归并排序
+	void mysort(int *arry, int left, int right)//归并排序
 
 private:
 	int length;									// 数据个数
