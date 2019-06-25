@@ -7,7 +7,7 @@
 #include <windows.h>
 #include <iostream>
 using namespace std;
-
+ 
 #define N 30
 
 class SortShow
@@ -32,12 +32,48 @@ public:
 
 	void BubbleSort();							// 冒泡排序（具体的排序算法）其定义在 Sorts.cpp 文件中
 	void SelectionSort();						// 选择排序
-	void QuickSort(int *a, int size);			// 快速排序（递归算法）
+	void QuickSort(int *a, int size);	// 快速排序（递归算法）
+	void MonkeySort( int *a, int size);
+	void MonkeySort()
+	{
+		MonkeySort (array, length);
+	}
+	void InsertSort(int *a, int size);
+	void InsertSort()
+	{
+		InsertSort(array, length);
+	}
 	void QuickSort()
 	{
 		ShowText(8, 0, 0, 7, "快速排序。带*号的条闪烁时表示此次划分完成，听到沙锤声时请按g或G继续");
 		QuickSort(array, length);
 	}
+	void ShellSort(int* a, int size);
+	void ShellSort()
+	{
+		ShellSort(array, length);
+	}
+	void bitonicSortAnyN(int *a, int length, bool asd);
+	
+	void  bitonicMergeAnyN(int *a, int length, bool asd);
+
+	void gnomesort(int n, int *array);
+	void gnomesort()
+	{
+		gnomesort(length, array);
+	}
+	void bidBubbleSort(int *array, int n);
+	void bidBubbleSort()
+	{
+		bidBubbleSort(array, length);
+	}
+	void BitonicSort3();
+	void BitonicSort1();
+	void sortSeq(int*array, int length, bool asd);
+	void BitonicSort2();
+	void bitonicSort(int *array, int length, bool asd);
+	void bitonicMerge(int *arr, int len, bool asd);
+	
 	// 请添加其他排序算法
 
 private:
