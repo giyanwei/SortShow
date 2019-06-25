@@ -208,6 +208,12 @@ void SortShow::ShowArray() const
 		ShowElements(array, i, i);
 }
 
+void SortShow::ShowArray(int *a, int size) const
+{
+	for (int i = 0; i < size; i++)
+		ShowElements(a, i, i);
+}
+
 void SortShow::Start()									// 排序准备开始
 {
 	DWORD result;
