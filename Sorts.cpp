@@ -1,6 +1,8 @@
 // Sorts.cpp	具体的排序算法成员函数定义（相应的函数声明在文件SortShow.h的SortShow类中）
 #include "SortShow.h"
 #include <conio.h>
+#include <stdlib.h>
+
 
 void SortShow::BubbleSort()
 {
@@ -80,8 +82,240 @@ void SortShow::QuickSort(int *a, int size)
 	Sleep(200);
 	MidiOutMessage(hMidiOut, 0x90, 0x09, 82, 127);		// 通道0x09特指打击乐（69, 82 Shaker 沙锤）
 	for(int key=0; key!='g' && key!='G'; )
-		key = _getch();
-	
+		key = getch();
 	QuickSort(a, left);
 	QuickSort(a+left+1, size-left-1);
 }
+
+void SortShow::MonkeySort(int *a, int size)
+{
+	int count0 = 0;
+	for (int i = 0; i < size; i++) {
+		if (array[i + 1] > array[i])
+			count0++;
+	}
+	if (count0 == size - 1)	return;
+	int h=0, k=0,count=0;
+	while(1){
+		if (count == size-1)
+			break;
+		h=rand()%size;
+		do{
+		k=rand()%size;
+		} while (k == h);
+		SWAP(a, h, k);
+		count = 0;
+		for (int i = 0; i < size; i++) {
+			if (array[i + 1] > array[i]) 
+				count++;
+		}
+	}
+}
+
+void SortShow::InsertSort(int *a, int size) 
+{
+	for (int i = 1; i < size; i++) {
+		int key = array[i];
+		int j = i - 1;
+		while ((j >= 0) && (key < array[j])) {
+			SWAP(a, j, j + 1);
+			j--;
+		}
+		array[j + 1] = key;
+	}
+}
+
+void SortShow ::ShellSort(int *a, int size)
+{
+		int h = 1;
+		while (h < size / 3) {
+			h = 3 * h + 1;
+		}
+		while (h >= 1) {
+			for (int i = h; i < size; i++) {
+				for (int j = i; j >= h && array[j] < array[j - h]; j -= h) {
+					SWAP(a,j, j - h);
+				}
+			}
+			h = h / 3;
+	}
+}
+void SortShow::BitonicSort1() //双调递推
+{
+	bool asd = true;
+	for (int step = 2; step < length; step *= 2)
+	{
+		for (int i = 0; i < length; i += 2 * step)
+		{
+			sortSeq(array + i, step, asd); // 前半升序
+			sortSeq(array + i + step, step, !asd); // 后半降序
+		}
+	}
+	sortSeq(array, length, asd);
+}
+
+void SortShow::sortSeq(int *array, int length, bool asd)
+{
+	int step = length / 2;
+	for (; step > 0; step /= 2)
+	{
+		for (int i = 0; i < length; i += 2 * step)
+		{
+			for (int j = 0; j < step; ++j)
+			{
+				if (asd)
+				{
+					if (array[i + j] > array[i + step + j])
+						SWAP(array, i + j, i + step + j);
+				}
+				else
+				{
+					if (array[i + j] < array[i + step + j])
+						SWAP(array, i + j, i + step + j);
+				}
+			}
+		}
+
+	}
+}
+void SortShow::BitonicSort2() //双调递归
+{
+	bool asd = true;
+	bitonicSort(array, length, asd);
+}
+void SortShow::bitonicSort(int *array, int length, bool asd) // asd 升序
+{
+	if (length > 1)
+	{
+		int m = length / 2;
+		bitonicSort(array, m, !asd); // 前半降序
+		bitonicSort(array + m, length - m, asd); // 后半升序
+		// 前2个sort之后形成了1个双调序列，然后传入merge合并成asd规定的序列
+		bitonicMerge(array, length, asd); // 合并
+	}
+}
+
+void SortShow::bitonicMerge(int *array, int length, bool asd) // 合并
+{
+	if (length > 1)
+	{
+		int m = length / 2;
+		for (int i = 0; i < m; ++i)
+		{
+			if (array[i] > array[i + m] == asd)
+				SWAP(array, i, i + m); // 根据asd判断是否交换
+		}
+		// for循环结束后又生成了2个双调序列，分别merge直到序列长度为1
+		bitonicMerge(array, m, asd); // 都是按照asd进行merge
+		bitonicMerge(array + m, m, asd);
+	}
+}
+
+
+void SortShow::bitonicSortAnyN(int *array, int length, bool asd)
+{ // asd 升序
+	if (length > 1)
+	{
+		int m = length / 2;
+		bitonicSortAnyN(array, m, !asd); // 前半降序
+		bitonicSortAnyN(array + m, length - m, asd); // 后半升序
+		// 前2个sort之后形成了双调序列，然后传入merge合并成asd规定的序列
+//        bitonicMerge(arr, len, asd); // 注释掉基本双调排序
+		bitonicMergeAnyN(array, length, asd);
+	}
+}
+
+void SortShow::BitonicSort3() //双调递归
+{
+	bool asd = true;
+	bitonicSortAnyN(array, length, asd);
+}
+
+
+
+
+int getGreatest2nLessThan(int length) {
+	int k = 1;
+	while (k < length) k = k << 1; // 注意一定要加k=
+	return k >> 1;
+}
+void SortShow::bitonicMergeAnyN(int *array, int length, bool asd) // 合并
+{
+	if (length > 1)
+	{
+		int m = getGreatest2nLessThan(length);
+		for (int i = 0; i < length - m; ++i)
+		{
+			if (array[i] > array[i + m] == asd)
+				SWAP(array, i, i + m); // 根据asd判断是否交换
+		}
+		// for循环结束后又生成了2个双调序列，分别merge直到序列长度为1
+		bitonicMergeAnyN(array, m, asd); // 都是按照asd进行merge
+		bitonicMergeAnyN(array + m, length - m, asd);
+	}
+}
+
+
+void SortShow::gnomesort(int n, int *array)
+{
+	int i = 0;
+
+	while (i < n)
+	{
+		if (i == 0 || array[i - 1] <= array[i])
+			i++;
+		else
+		{
+			SWAP(array, i, i - 1);
+			i--;
+		}
+	}
+}
+
+
+void SortShow::bidBubbleSort(int *array, int n)
+{
+	int left, right, t, l, r, j, i = 0;
+
+	left = 0;
+	right = n - 1;
+
+
+	while (left < right)
+	{
+
+		l = left + 1;
+		r = right - 1;
+
+
+		for (j = left; j < right; j++)
+		{
+			if (array[j] > array[j + 1])
+			{
+				SWAP(array, j, j + 1);
+				r = j;
+			}
+		}
+		right = r;
+
+
+		for (j = right; j > left; j--)
+		{
+			if (array[j] < array[j - 1])
+			{
+				SWAP(array, j, j - 1);
+				l = j;
+			}
+		}
+		left = l;
+	}
+}
+
+
+
+
+
+
+
+
+

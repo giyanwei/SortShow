@@ -156,9 +156,9 @@ void SortShow::ShowElements(const int *a, int i, int j, bool pause) const	// Ïà¶
 			break;
 		else
 		{
-			if(_kbhit())											// Èç¹ûÃ»ÓĞ»÷¼ü£¬·µ»Ø0£¨¸Ãº¯ÊıÔ­ĞÍÔÚconio.hÖĞ£©
+			if(kbhit())											// Èç¹ûÃ»ÓĞ»÷¼ü£¬·µ»Ø0£¨¸Ãº¯ÊıÔ­ĞÍÔÚconio.hÖĞ£©
 			{
-				_getch();
+				getch();
 				break;
 			}
 		}
@@ -222,7 +222,7 @@ void SortShow::Start()									// ÅÅĞò×¼±¸¿ªÊ¼
 	SetConsoleCursorPosition(hStdOut, coord);
 	SetConsoleTextAttribute(hStdOut, 4<<4 | 14);		// ±³¾°:ºì(4), Ç°¾°:»Æ(14)
 	WriteConsole(hStdOut, str, strlen(str), &result, NULL);
-	_getch();
+	getch();
 	SetConsoleCursorPosition(hStdOut, coord);
 	WriteConsole(hStdOut, "ÅÅĞò½øĞĞÖĞ......      ", 22, &result, NULL);
 	MidiOutMessage(hMidiOut, 0x90, 0x09, 71, 127);		// Í¨µÀ0x09ÌØÖ¸´ò»÷ÀÖ£¨71Îª Short Whistle ¶ÌÉÚ£©
